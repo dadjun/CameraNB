@@ -170,7 +170,6 @@ export default {
     searchLog(){
       this.currentPage = 1
       this.getCustomers()
-      alert('a')
     },
     getCustomers () {
       var jsonData = {
@@ -179,7 +178,7 @@ export default {
         //pageNum:'' + this.pageNum,
         pageSize: '' + this.pageSize
       }
-      alert(jsonData.pageNum)
+
       api.selectCustomersAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
         this.data1 = res.list
         this.totalNum = res.total

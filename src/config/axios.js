@@ -8,7 +8,7 @@ promise.polyfill()
 axios.defaults.timeout = 10000
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
 
-axios.defaults.baseURL ='http://localhost:8080'
+axios.defaults.baseURL ='http://localhost:8082'
 // axios.defaults.baseURL = 'http://hylink.imwork.net:8235/fireinspectionMgmt'
 // axios.defaults.baseURL = 'http://192.168.0.40:8080/fireMgmt'
 
@@ -68,6 +68,9 @@ export default {
     return fetch('/customer/selectCustomers', params)
   },
 
+  sendCustomersEmailAxios(params) {
+    return fetch('/email/batchSend', params)
+  },
 
   // 登录接口
   loginAxios (params) {

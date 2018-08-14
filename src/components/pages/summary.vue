@@ -34,9 +34,8 @@
       <Content :style="{margin: '88px 20px 0', background: '#fff', minHeight: '50px'}">
         Content
       </Content>
-      <Button type="primary">send</Button>
-      <Button type="dashed" v-on:onclick="sneEmail">Dashed</Button>
-      <Table border :columns="columns1" :data="data1"></Table>
+      <Button type="primary" @click="sendEmail">发送</Button>
+      <Table border :columns="columns1" :data="data1" @on-selection-change="selectChange"></Table>
 
         <Page :total="totalPage" :current="currentPage"   @on-change="pageChange" show-sizer />
 
@@ -101,7 +100,7 @@ export default {
       pageNum: 10,
       pageSize: 10,
       totalNum: 0,
-
+      customers:[],
       visible:false,
       item:1,
       url:"http://www.baidu.com",
@@ -145,7 +144,7 @@ export default {
         },
         {
           name: 'Jim Green',
-          email: 'junjie316go@gmai.com',
+          email: 'junjie316go@gmail.com',
           address: 'London No. 1 Lake Park',
           date: '2016-10-01'
         }
@@ -157,8 +156,22 @@ export default {
     this.searchLog()
   },
   methods: {
-    sneEmail:function( ) {
+    selectChange:function(selection){
+      this.customers = selection;
+      console.log(this.customers)
+    },
+    sendEmail:function( ) {
+      var jsonData = {
+        sender: "595436259@qq.com",
+        list: this.customers
+      };
 
+      api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
+        this.data1 = res.list
+
+      }).catch(error => {
+        console.log(error)
+      })
     },
     pageChange:function(value) {
       this.currentPage = value

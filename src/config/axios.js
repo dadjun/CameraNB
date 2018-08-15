@@ -74,7 +74,10 @@ export default {
 
   // 登录接口
   loginAxios (params) {
-    return fetch('/home/selectLoginInfo', params)
+    return fetch('/user/login', params)
+  },
+// 登录接口
+  registerUserAxios (params) {
+    return fetch('/user/register', params)
   }
-
 }

@@ -1,14 +1,15 @@
 <template>
-<div class="background-img">
+  <Layout>
+    <Header>Header</Header>
+    <Content>Content</Content>
+    <Footer>Footer</Footer>
+  </Layout>
+<!--<div class="background-img">
   <div class="container">
-    <div class="jingHui">
-      <img src="./images/logo.png" alt="jingHui">
-      <h1>客户管理系统</h1>
-    </div>
     <div class="login-wrap">
-      <div class="logo">
-      <!--  <img src="./images/logo.png" alt="logo">-->
-      </div>
+     &lt;!&ndash; <div class="logo">
+      &lt;!&ndash;  <img src="./images/logo.png" alt="logo">&ndash;&gt;
+      </div>&ndash;&gt;
       <div class="welcome">———— 欢迎登陆客户管理系统 ————</div>
       <div class="error">{{error_text}}</div>
       <div class="input-group">
@@ -23,7 +24,7 @@
         <label for="remberme" class="rember-label">
           <input type="checkbox" id="remberme" v-model="rememberMe">记住我</label>
         <span class="password-rest">
-          <!-- <a>忘记密码？</a> -->
+          &lt;!&ndash; <a>忘记密码？</a> &ndash;&gt;
         </span>
       </div>
       <div class="btn-submit">
@@ -31,7 +32,7 @@
       </div>
     </div>
   </div>
-</div>
+</div>-->
 </template>
 
 <style scoped>

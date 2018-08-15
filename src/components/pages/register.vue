@@ -40,7 +40,7 @@
           <h3 style="color:#ed3f14;text-align: center"><p>链接过期或失效<a href="register.html"> 重新发送邮件</a></p></h3>
 
         </div>
-        <small style="display: block;text-align: center;line-height: 30px;"><img :src="require('@/assets/img/logo.png')" height="30" alt="" style="vertical-align: top"><span>Copyright by Artiely ,All rights reserved</span>
+        <small style="display: block;text-align: center;line-height: 30px;"><img :src="require('@/assets/img/logo.png')" height="30" alt="" style="vertical-align: top"><span>Copyright by Melinda ,All rights reserved</span>
         </small>
       </Card>
       </Col>

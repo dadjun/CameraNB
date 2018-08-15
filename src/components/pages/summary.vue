@@ -167,7 +167,11 @@ export default {
       };
 
       api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
-        this.data1 = res.list
+       if(res == true) {
+         this.$Message.info("发送成功")
+       }else{
+         this.$Message.error("发送成功")
+       }
 
       }).catch(error => {
         console.log(error)

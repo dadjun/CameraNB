@@ -30,7 +30,7 @@
       <div slot="footer">
         <Button type="primary" size="large" long :loading="modal_loading" @click="handleSubmit('formValidate')">登录
         </Button>
-        <small style="text-align: center;display:block" class="subText">©copyright by Artiely</small>
+        <small style="text-align: center;display:block" class="subText">©copyright by Melinda</small>
       </div>
     </Modal>
   </div>
@@ -42,6 +42,7 @@
     name: 'login',
     data () {
       return {
+        error_text:"",
         loginModal: true,
         modal_loading: false,
         formValidate: {
@@ -69,9 +70,15 @@
         this.$refs[name].validate((valid) => {
           this.modal_loading = true
             api.loginAxios({jsonData:JSON.stringify(userInfo)}).then(res=>{
-              Cookies.set('token', this.formValidate.password)
+              if (res == 1) {
+                Cookies.set('token', this.formValidate.password)
+                //this.$Message.error('表单验证失败!')
+                this.$router.push('/summary')
+               }else{
+                this.error_text = '登录错误，请稍后重试！'
+                this.$Message.error(this.error_text)
+              }
               this.modal_loading = false
-              this.$router.push('/summary')
             }).catch(res=>{
               this.error_text = '网络错误，请稍后重试！'
               this.modal_loading = false

@@ -14,16 +14,20 @@
              <Form-item label="账号名" prop="user">
               <Input v-model="formCustom.user" placeholder="请输入"></Input>
             </Form-item>
-            <Form-item label="密码" prop="mark" >
+            <Form-item label="密码" prop="password" >
               <Input type="password" v-model="formCustom.password" placeholder="请输入"></Input>
             </Form-item>
 
           <!--  <Form-item label="管理员身份证号" prop="idCard">
               <Input v-model="formCustom.idCard" placeholder="请输入"></Input>
             </Form-item>-->
-            <FormItem label="E-mail" prop="mail">
+            <FormItem label="E-mail" prop="email">
               <Input v-model="formCustom.email" placeholder="请输入"></Input>
             </FormItem>
+
+            <Form-item label="E-mail password"  prop="password">
+              <Input  type="password" v-model="formCustom.mailPsw" placeholder="请输入邮箱密码"></Input>
+            </Form-item>
 
             <Form-item>
               <Button type="primary" @click="handleSubmit('formCustom')" long :loading="loading">提交
@@ -60,14 +64,11 @@
         loading: false,
         bgUrl: bgUrl,
         formCustom: {
-          typeId: 2,
           user: '',
           password: '',
           email: '',
-          userName: '',
-          idCard: '',
-          sex: '1',
-          phone: ''
+          mailPsw:''
+
         },
         ruleCustom: {
           user: [
@@ -81,8 +82,11 @@
           email: [
             { required: true, message: 'Mailbox cannot be empty', trigger: 'blur' },
             { type: 'email', message: 'Incorrect email format', trigger: 'blur' }
+          ],
+          mailpassword: [
+            {required: true, message: '标示不能为空', trigger: 'blur'},
+            {message: '标示只支持字母', trigger: 'blur'}
           ]
-
         }
       }
     },
@@ -95,22 +99,19 @@
               password: this.formCustom.password,
               user: this.formCustom.user,
               //personSex: this.formCustom.idCard.substring(16, 1) % 2 ? '1' : '0',
-              email: this.formCustom.email
+              email: this.formCustom.email,
+              mailPsw:this.formCustom.mailPsw
 
             }
             api.registerUserAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
 
-              this.$Message.success('提交成功!')
-
-              let url = window.location.href
-              console.log(url)
-              if (window.location.search === '') {
-                url = window.location.href
+              if (res.resultCode == 'NO_ERROR') {
+                this.$router.push('/summary')
+                this.$Message.success(res.resultMsg)
               } else {
-                url = url.split(window.location.search)[0]
+                this.$Message.success(res.resultMsg)
               }
-              url = url.replace('register', 'summary')
-              window.location.href = url
+              this.loading = false
               console.log(url);
             }).catch(error => {
               this.loading = false

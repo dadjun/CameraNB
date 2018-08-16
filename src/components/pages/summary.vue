@@ -6,21 +6,7 @@
     border-radius: 4px;
     overflow: hidden;
   }
-  .layout-logo{
-    width: 100px;
-    height: 30px;
-    background: #5b6270;
-    border-radius: 3px;
-    float: left;
-    position: relative;
-    top: 15px;
-    left: 20px;
-  }
-  .layout-nav{
-    width: 420px;
-    margin: 0 auto;
-    margin-right: 20px;
-  }
+
   .layout-footer-center{
     text-align: center;
   }
@@ -28,27 +14,54 @@
 <template>
   <div class="layout">
     <Layout>
-      <Header :style="{position: 'fixed', width: '100%'}">
-      <p>cs system</p>
+      <Header :style="{ float: 'center', background:'#e0e0e0',/*position: 'fixed', */width: '100%' ,height:'100px'}">
+        <div>
+         <!--<p :style="{color:'#000000',  float: 'center', fontFamily:'sans-serif',fontSize:'26px',textAlign:'center'}">cs system</p>-->
+            <Dropdown  class="userBox"  slot='right'>
+              <a href="javascript:void(0)">
+              {{username}}
+                <Icon type="ios-arrow-down"></Icon>
+              </a>
+              <DropdownMenu slot="list">
+                <DropdownItem>编辑信息</DropdownItem>
+                <DropdownItem>退出</DropdownItem>
+                <DropdownItem divided>北京烤鸭</DropdownItem>
+              </DropdownMenu>
+            </Dropdown>
+        </div>
       </Header>
-      <Content :style="{margin: '88px 20px 0', background: '#fff', minHeight: '50px'}">
-        Content
-      </Content>
-      <Button type="primary" @click="sendEmail">发送</Button>
+
+
+      <Content :style="{margin: '5px 2px 0', background: '#fff', minHeight: '50px'}">
+        <Row>
+          <H2 :style="{ textAlign:'center',fontSize:'20px'}">客户列表</H2>
+        </Row>
+
+        <div>
+            <small>发送邮箱</small>
+          <div>
+            <Input v-model="mailSender" placeholder="Enter something..." style="width: 300px" />
+
+           <Button type="primary" @click="sendEmail">发送</Button>
+          </div>
+          <br>
+          <div>
+            <Input v-model="mailSender" placeholder="Enter something..." style="width: 300px" />
+            <Button @click="clearUploadedFiles">重新上传</Button>
+            <Upload     ref="upload" v-model="fileUploadUrl" :action="fileUploadUrl" :on-success="uploadSuccess">
+              <Button icon="ios-cloud-upload-outline">Upload files</Button>
+            </Upload>
+          </div>
+          <Button :style="{   float:'right'}" type="primary" @click="addCustomer">添加客户</Button>
+        </div>
+
+      <br>
       <Table border :columns="columns1" :data="data1" @on-selection-change="selectChange"></Table>
 
         <Page :total="totalPage" :current="currentPage"   @on-change="pageChange" show-sizer />
 
-      <Button @click="handleSelectAll(true)">Set all selected</Button>
-      <Button @click="handleSelectAll(false)">Cancel all selected</Button>
 
-      <div >
-        <input type="button" value="clickme" v-on:click="item+=1"/>
-        <Input v-model="value" placeholder="Enter something..." style="width: 300px" />
-        <div>{{item}}</div>
-          <a :href="url">点击我</a>
-      </div>
-
+      </Content>
       <Footer class="layout-footer-center">2018-2020 &copy; Melinda</Footer>
     </Layout>
   </div>
@@ -81,6 +94,13 @@
   padding: 5px 15px;
   margin: -30px 0 0 -80px;
 }
+
+.userBox {
+  height: 50px;
+  line-height: 50px;
+  float: right;
+  padding: 0 10px;
+}
 </style>
 
 <script>
@@ -92,8 +112,9 @@ import pagination from '@/components/plugins/pagination'
 export default {
   data () {
     return {
-      value:1,
-      userInfo: '',
+      fileUploadUrl:"http://localhost:8082/email/uploadFile",
+      mailSender:"http://localhost:8082/email/uploadFile",
+      username: '1sss',
       timePoint: '',
       currentPage: 1,
       totalPage: 10,
@@ -156,13 +177,19 @@ export default {
     this.searchLog()
   },
   methods: {
+    clearUploadedFiles () {
+      this.$refs.upload.clearFiles();
+    },
+    uploadSuccess:function(){
+
+    },
     selectChange:function(selection){
       this.customers = selection;
       console.log(this.customers)
     },
     sendEmail:function( ) {
       var jsonData = {
-        sender: "595436259@qq.com",
+        sender:this.mailSender,
         list: this.customers
       };
 

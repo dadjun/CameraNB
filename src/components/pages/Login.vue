@@ -48,6 +48,7 @@
         formValidate: {
           name: '',
           password: ''
+
         },
         ruleValidate: {
           name: [
@@ -70,13 +71,13 @@
         this.$refs[name].validate((valid) => {
           this.modal_loading = true
             api.loginAxios({jsonData:JSON.stringify(userInfo)}).then(res=>{
-              if (res == 1) {
+              if (res.resultCode == 'NO_ERROR') {
                 Cookies.set('token', this.formValidate.password)
-                //this.$Message.error('表单验证失败!')
+                this.$Message.success(res.resultMsg)
                 this.$router.push('/summary')
                }else{
                 this.error_text = '登录错误，请稍后重试！'
-                this.$Message.error(this.error_text)
+                this.$Message.success(res.resultMsg)
               }
               this.modal_loading = false
             }).catch(res=>{

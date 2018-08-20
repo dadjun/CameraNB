@@ -14,7 +14,7 @@
 <template>
   <div class="layout">
     <Layout>
-      <Header :style="{ float: 'center', background:'#e0e0e0',/*position: 'fixed', */width: '100%' ,height:'100px'}">
+      <Header :style="{ float: 'center', background:'#f2f2f2',/*position: 'fixed', */width: '100%' ,height:'40px'}" >
         <div>
          <!--<p :style="{color:'#000000',  float: 'center', fontFamily:'sans-serif',fontSize:'26px',textAlign:'center'}">cs system</p>-->
             <Dropdown  class="userBox"  slot='right'>
@@ -25,7 +25,7 @@
               <DropdownMenu slot="list">
                 <DropdownItem>编辑信息</DropdownItem>
                 <DropdownItem>退出</DropdownItem>
-                <DropdownItem divided>北京烤鸭</DropdownItem>
+                <DropdownItem divided>毛毛鱼</DropdownItem>
               </DropdownMenu>
             </Dropdown>
         </div>
@@ -34,31 +34,39 @@
 
       <Content :style="{margin: '5px 2px 0', background: '#fff', minHeight: '50px'}">
         <Row>
-          <H2 :style="{ textAlign:'center',fontSize:'20px'}">客户列表</H2>
+          <h1 :style="{ textAlign:'center',fontSize:'20px'}" v-text="asb"></h1>
         </Row>
 
         <div>
-            <small>发送邮箱</small>
+
           <div>
+            <small>发送邮箱:</small>
             <Input v-model="mailSender" placeholder="Enter something..." style="width: 300px" />
 
-           <Button type="primary" @click="sendEmail">发送</Button>
+           <Button type="primary" @click="sendEmail">批量发送</Button>
           </div>
           <br>
           <div>
-            <Input v-model="mailSender" placeholder="Enter something..." style="width: 300px" />
+            <small>发送主题:</small>
+            <Input v-model="mailSubject" placeholder="Enter something..." style="width: 300px" />
             <Button @click="clearUploadedFiles">重新上传</Button>
-            <Upload     ref="upload" v-model="fileUploadUrl" :action="fileUploadUrl" :on-success="uploadSuccess">
-              <Button icon="ios-cloud-upload-outline">Upload files</Button>
-            </Upload>
-          </div>
-          <Button :style="{   float:'right'}" type="primary" @click="addCustomer">添加客户</Button>
-        </div>
 
-      <br>
+          </div>
+          <br>
+          <Upload   ref="upload"
+                      :action="fileUploadUrl"
+                      :data="postData"
+                      :on-success="uploadSuccess">
+            <Button icon="ios-cloud-upload-outline">Upload files</Button>
+          </Upload>
+
+          <Button :style="{ float:'right'}" type="primary" @click="addCustomer">添加客户</Button>
+        </div>
+        <br>
+        <br>
       <Table border :columns="columns1" :data="data1" @on-selection-change="selectChange"></Table>
 
-        <Page :total="totalPage" :current="currentPage"   @on-change="pageChange" show-sizer />
+        <Page :total="totalPage" :current="currentPage"  :page-size="pageSize"  @on-change="pageChange" @on-page-size-change="pageSizeChange" show-sizer />
 
 
       </Content>
@@ -106,19 +114,22 @@
 <script>
 
 import api from '../../config/axios.js'
+import util from '../../common/utils/index.js'
 import pagination from '@/components/plugins/pagination'
 //import autoUserInput from '@/components/tokens/autoUserInput'
-
+import Cookies from 'js-cookie'
 export default {
   data () {
     return {
       fileUploadUrl:"http://localhost:8082/email/uploadFile",
-      mailSender:"http://localhost:8082/email/uploadFile",
-      username: '1sss',
+      mailSubject:'',
+      mailSender:Cookies.get('email'),
+      username: util.getCookie('csName'),
+      postData:{a:"i am good guy",csName :util.getCookie('csName')},
       timePoint: '',
       currentPage: 1,
       totalPage: 10,
-      pageNum: 10,
+
       pageSize: 10,
       totalNum: 0,
       customers:[],
@@ -152,8 +163,8 @@ export default {
           key:'customerType'
         },
         {
-          title: 'Send',
-          key: 'send'
+          title: 'lastSendDate',
+          key: 'lastSendDate'
         }
       ],
       data1: [
@@ -180,9 +191,12 @@ export default {
     clearUploadedFiles () {
       this.$refs.upload.clearFiles();
     },
-    uploadSuccess:function(){
-
-    },
+    uploadSuccess (res, file) { //上传成功
+      this.$Message.info(res.msg);
+      if(res.code == 200){
+        this.excel_name = res.info.originalName;
+      }
+    }     ,
     selectChange:function(selection){
       this.customers = selection;
       console.log(this.customers)
@@ -194,7 +208,7 @@ export default {
       };
 
       api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
-       if(res == true) {
+       if(res.resultCode =='NO_ERROR') {
          this.$Message.info("发送成功")
        }else{
          this.$Message.error("发送成功")
@@ -208,6 +222,11 @@ export default {
       this.currentPage = value
       this.getCustomers()
     },
+    pageSizeChange:function(value){
+      this.pageSize = value
+      this.getCustomers()
+      this.$Message.error(this.pageSize.toString())
+    },
     show: function () {
       this.visible = true;
     },
@@ -217,9 +236,7 @@ export default {
     },
     getCustomers () {
       var jsonData = {
-
         pageNum: '' + this.currentPage,
-        //pageNum:'' + this.pageNum,
         pageSize: '' + this.pageSize
       }
 
@@ -232,9 +249,8 @@ export default {
         console.log(error)
       })
     },
-    gotoPage (page) {
-      this.currentPage = page
-      this.getCustomers(page)
+    addCustomer(){
+
     }
   },
   components: {

@@ -37,6 +37,7 @@
 </template>
 <script>
   import api from '../../config/axios.js'
+  import util from '../../common/utils/index.js'
   import Cookies from 'js-cookie'
   export default {
     name: 'login',
@@ -67,12 +68,14 @@
           password:this.formValidate.password,
           user:this.formValidate.name
           };
+        util.setCookie('csName',this.formValidate.name,1)
 
         this.$refs[name].validate((valid) => {
           this.modal_loading = true
             api.loginAxios({jsonData:JSON.stringify(userInfo)}).then(res=>{
               if (res.resultCode == 'NO_ERROR') {
                 Cookies.set('token', this.formValidate.password)
+                Cookies.set('email', res.data)
                 this.$Message.success(res.resultMsg)
                 this.$router.push('/summary')
                }else{

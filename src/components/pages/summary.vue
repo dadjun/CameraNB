@@ -203,10 +203,9 @@ export default {
     },
     sendEmail:function( ) {
       var jsonData = {
-        sender:this.mailSender,
+        sender:this.username,
         list: this.customers
       };
-
       api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
        if(res.resultCode =='NO_ERROR') {
          this.$Message.info("发送成功")

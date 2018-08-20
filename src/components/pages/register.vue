@@ -115,6 +115,7 @@
               console.log(url);
             }).catch(error => {
               this.loading = false
+              this.$Message.error(error)
               console.log(error)
             })
     /*       this.$api.postUserInfo(data).then(res => {

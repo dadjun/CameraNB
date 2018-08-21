@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import login1 from '@/components/pages/login'
+import login from '@/components/pages/login'
 import register from '@/components/pages/register'
 import summary from '@/components/pages/summary'
 Vue.use(Router)
@@ -15,17 +15,18 @@ export default new Router({
     },
     {
       path:  '/',
-      name: 'login1',
-      component: login1
+      name: 'login',
+      component: login,
+      meta:
+        {
+          auth: false
+        }
     },
     {
       path:  '/summary',
       name:  'summary',
       component: summary,
-      meta:
-        {
-          auth: false
-        }
+
     }
   ]
 })

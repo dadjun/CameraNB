@@ -34,7 +34,7 @@
 
       <Content :style="{margin: '5px 2px 0', background: '#fff', minHeight: '50px'}">
         <Row>
-          <h1 :style="{ textAlign:'center',fontSize:'20px'}" v-text="asb"></h1>
+          <h1 :style="{ textAlign:'center',fontSize:'20px'}"  ></h1>
         </Row>
 
         <div>
@@ -66,7 +66,7 @@
         <br>
       <Table border :columns="columns1" :data="data1" @on-selection-change="selectChange"></Table>
 
-        <Page :total="totalPage" :current="currentPage"  :page-size="pageSize"  @on-change="pageChange" @on-page-size-change="pageSizeChange" show-sizer />
+        <Page :total="totalNum" :current="currentPage"  :page-size="pageSize"  @on-change="pageChange" @on-page-size-change="pageSizeChange" show-sizer />
 
 
       </Content>
@@ -131,7 +131,7 @@ export default {
       totalPage: 10,
 
       pageSize: 10,
-      totalNum: 0,
+      totalNum: 10,
       customers:[],
       visible:false,
       item:1,
@@ -204,6 +204,7 @@ export default {
     sendEmail:function( ) {
       var jsonData = {
         sender:this.username,
+        subject:this.mailSubject,
         list: this.customers
       };
       api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
@@ -222,7 +223,10 @@ export default {
       this.getCustomers()
     },
     pageSizeChange:function(value){
+
       this.pageSize = value
+
+      console.log(this.pageSize)
       this.getCustomers()
       this.$Message.error(this.pageSize.toString())
     },
@@ -242,8 +246,9 @@ export default {
       api.selectCustomersAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
         this.data1 = res.list
         this.totalNum = res.total
-        this.totalPage = res.pages;
-        this.currentPage = res.pageNum;
+        this.totalPage = res.pages
+        console.log(this.totalPage)
+        //this.currentPage = res.pageNum
       }).catch(error => {
         console.log(error)
       })

@@ -73,7 +73,7 @@
           this.modal_loading = true
             api.loginAxios({jsonData:JSON.stringify(userInfo)}).then(res=>{
               if (res.resultCode == 'NO_ERROR') {
-                Cookies.set('username',this.formValidate.name)
+                Cookies.set('userName',this.formValidate.name)
                 //Cookies.set('token', this.formValidate.password)
                 Cookies.set('email', res.data)
                 this.$Message.success(res.resultMsg)

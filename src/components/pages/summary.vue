@@ -121,7 +121,8 @@ import Cookies from 'js-cookie'
 export default {
   data () {
     return {
-      fileUploadUrl:"http://localhost:8082/email/uploadFile",
+      //fileUploadUrl:"http://localhost:8082/email/uploadFile",
+      fileUploadUrl:api.baseURL + '/email/uploadFile',
       mailSubject:'',
       mailSender:Cookies.get('email'),
       username: Cookies.get('userName'),
@@ -165,6 +166,33 @@ export default {
         {
           title: 'lastSendDate',
           key: 'lastSendDate'
+        },
+
+        {
+          title: 'Status',
+          key: 'status',
+          width: 150,
+          align: 'center',
+          render: (h, params) => {
+             console.log(params)
+            return h('div', [
+              h('Button', {
+                props: {
+                  type: 'primary',
+                  size: 'small'
+                },
+                style: {
+                  marginRight: '5px',
+                  display:(params.row.status=='true')?"inline-block":"none"
+                },
+                on: {
+                  click: () => {
+                    this.show(params.index)
+                  }
+                }
+              }, 'success')
+            ]);
+          }
         }
       ],
       data1: [
@@ -199,28 +227,38 @@ export default {
     }     ,
     selectChange:function(selection){
       this.customers = selection;
-      console.log(this.customers)
+      //console.log(this.customers)
     },
     sendEmail:function( ) {
-      var jsonData = {
-        sender:this.username,
-        subject:this.mailSubject,
-        list: this.customers
-      };
 
-      this.customers.forEach(function(v,k){
-        console.log(v)
+      this.data1.forEach(function (v, k, theArray) {
+          theArray[k].status = 'false'
       })
-      api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
-       if(res.resultCode =='NO_ERROR') {
-         this.$Message.info("发送成功")
-       }else{
-         this.$Message.error("发送成功")
-       }
 
-      }).catch(error => {
-        console.log(error)
-      })
+      for( let dat of this.customers) {
+        var jsonData = {
+          sender: this.username,
+          subject: this.mailSubject,
+          list: dat
+        };
+
+        api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
+          this.data1.forEach(function (v, k, theArray) {
+            if (v.id == res.data.id && res.data.status == true) {
+              theArray[k].status = 'true'
+            }
+          })
+
+          if (res.resultCode == 'NO_ERROR') {
+            this.$Message.info("发送成功")
+          } else {
+            this.$Message.error("发送成功")
+          }
+
+        }).catch(error => {
+          console.log(error)
+        })
+      }
     },
     pageChange:function(value) {
       this.currentPage = value

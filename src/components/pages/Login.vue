@@ -68,6 +68,7 @@
           password:this.formValidate.password,
           user:this.formValidate.name
           };
+        console.log(userInfo)
         //util.setCookie('username',this.formValidate.name,1)
         this.$refs[name].validate((valid) => {
           this.modal_loading = true

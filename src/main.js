@@ -12,8 +12,8 @@ Vue.config.productionTip = false
 // 登录验证
 router.beforeEach((to, from, next) => {
   if (to.meta.auth !== false) {
-    console.log(Cookies.get('username'))
-    if (Cookies.get('username')) { // 是否登录
+    console.log(Cookies.get('userName'))
+    if (Cookies.get('userName')) { // 是否登录
       next()
     } else { // 未登录则跳转到登录页面
       next({

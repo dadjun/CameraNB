@@ -207,6 +207,10 @@ export default {
         subject:this.mailSubject,
         list: this.customers
       };
+
+      this.customers.forEach(function(v,k){
+        console.log(v)
+      })
       api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
        if(res.resultCode =='NO_ERROR') {
          this.$Message.info("发送成功")

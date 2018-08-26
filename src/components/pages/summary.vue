@@ -59,7 +59,7 @@
                       :on-success="uploadSuccess">
             <Button icon="ios-cloud-upload-outline">Upload files</Button>
           </Upload>
-
+          <Button type="primary"  @click="downloadFile">查看上传文件</Button>
           <Button :style="{ float:'right'}" type="primary" @click="addCustomer">添加客户</Button>
         </div>
         <br>
@@ -117,12 +117,13 @@ import api from '../../config/axios.js'
 import util from '../../common/utils/index.js'
 import pagination from '@/components/plugins/pagination'
 //import autoUserInput from '@/components/tokens/autoUserInput'
+import { fetchDownloadFile } from  '../../config/axios.js'
 import Cookies from 'js-cookie'
 export default {
   data () {
     return {
       //fileUploadUrl:"http://localhost:8082/email/uploadFile",
-      fileUploadUrl:api.baseURL + '/email/uploadFile',
+      fileUploadUrl:api.baseURL + '/user/uploadFile',
       mailSubject:'',
       mailSender:Cookies.get('email'),
       username: Cookies.get('userName'),
@@ -197,12 +198,6 @@ export default {
       ],
       data1: [
         {
-          name: 'John Brown',
-          email: '59436259@qq.com',
-          address: 'New York No. 1 Lake Park',
-          date: '2016-10-03'
-        },
-        {
           name: 'Jim Green',
           email: 'junjie316go@gmail.com',
           address: 'London No. 1 Lake Park',
@@ -220,9 +215,10 @@ export default {
       this.$refs.upload.clearFiles();
     },
     uploadSuccess (res, file) { //上传成功
-      this.$Message.info(res.msg);
-      if(res.code == 200){
-        this.excel_name = res.info.originalName;
+      this.$Message.info(res.data);
+      if(res.resultCode == 'NO_ERROR'){
+        Cookies.set('contentPath', res.data.contentPath)
+
       }
     }     ,
     selectChange:function(selection){
@@ -295,8 +291,25 @@ export default {
         console.log(error)
       })
     },
-    addCustomer(){
+    downloadFile: function () {
+      var jsonData = {
+        userName: '' + this.username
+      }
+      api.downloadUserFile({jsonData: JSON.stringify(jsonData)}).then(res => {
 
+        let url = window.URL.createObjectURL(new Blob([res]))
+        let link = document.createElement('a')
+        link.style.display = 'none'
+        link.href = url
+        link.setAttribute('download', Cookies.get('contentPath'))
+        document.body.appendChild(link)
+        link.click()
+      }).catch(error => {
+        console.log(error)
+      })
+
+    },
+    addCustomer(){
     }
   },
   components: {

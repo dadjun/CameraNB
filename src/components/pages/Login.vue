@@ -76,7 +76,7 @@
               if (res.resultCode == 'NO_ERROR') {
                 Cookies.set('userName',this.formValidate.name)
                 //Cookies.set('token', this.formValidate.password)
-                Cookies.set('email', res.data)
+                Cookies.set('email', res.data.email)
                 this.$Message.success(res.resultMsg)
                 this.$router.push('/summary')
                }else{

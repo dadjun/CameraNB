@@ -9,8 +9,8 @@ axios.defaults.timeout = 15000
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
 
 //axios.defaults.baseURL ='http://localhost:8080'
-// axios.defaults.baseURL ='http://localhost:8080'
-axios.defaults.baseURL = 'http://hylink.imwork.net:8234/customer'
+ axios.defaults.baseURL ='http://localhost:8082'
+//axios.defaults.baseURL = 'http://hylink.imwork.net:8234/customer'
 // axios.defaults.baseURL = 'http://192.168.0.40:8080/fireMgmt'
 
 // POST传参序列化(添加请求拦截器)
@@ -54,6 +54,29 @@ export function fetch (url, params) {
   })
 }
 
+export function fetchDownloadFile (url, params) {
+  return new Promise((resolve, reject) => {
+   axios({
+      method:'post',
+      url:url,//后台请求地址
+      responseType:'blob',
+     params:params
+    }) .then(response => {
+        if (!response.data) {
+          resolve(response)
+        } else {
+          resolve(response.data)
+        }
+      }, err => {
+        reject(err)
+      })
+      .catch((error) => {
+        reject(error)
+      })
+  })
+}
+
+
 export default {
 
   baseURL:axios.defaults.baseURL,
@@ -82,5 +105,9 @@ export default {
 // 登录接口
   registerUserAxios (params) {
     return fetch('/user/register', params)
+  },
+  downloadUserFile(params) {
+    return  fetchDownloadFile('/user/downloadFile', params)
   }
+
 }

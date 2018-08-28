@@ -17,18 +17,40 @@
       <Header :style="{ float: 'center', background:'#f2f2f2',/*position: 'fixed', */width: '100%' ,height:'40px'}" >
         <div>
          <!--<p :style="{color:'#000000',  float: 'center', fontFamily:'sans-serif',fontSize:'26px',textAlign:'center'}">cs system</p>-->
-            <Dropdown  class="userBox"  slot='right'>
+            <Dropdown  class="userBox"  slot='right' @on-click="handleDropClick">
               <a href="javascript:void(0)">
               {{username}}
                 <Icon type="ios-arrow-down"></Icon>
               </a>
               <DropdownMenu slot="list">
-                <DropdownItem>编辑信息</DropdownItem>
-                <DropdownItem>退出</DropdownItem>
-                <DropdownItem divided>毛毛鱼</DropdownItem>
+                <DropdownItem name="1" >编辑信息</DropdownItem>
+                <DropdownItem name="2" >退出</DropdownItem>
+                <DropdownItem name="3" >毛毛鱼</DropdownItem>
               </DropdownMenu>
             </Dropdown>
         </div>
+
+        <Modal
+          title="修改用户信息"
+          v-model="modal7"
+          @on-ok="modifyUserInfo"
+          :styles="{top: '20px'}">
+          <div>
+          <Form ref="formCustom" :model="formUser" :rules="ruleCustom" :label-width="110">
+
+            <!--<Form-item label="密码" prop="password" >
+              <Input type="password" v-model="formUser.password" placeholder="请输入"></Input>
+            </Form-item>-->
+            <FormItem label="E-mail" prop="email">
+              <Input v-model="formUser.email" placeholder="请输入"></Input>
+            </FormItem>
+            <Form-item label="E-mail password"  prop="password">
+              <Input  type="password" v-model="formUser.mailPsw" placeholder="请输入邮箱密码"></Input>
+            </Form-item>
+          </Form>
+          </div>
+        </Modal>
+
       </Header>
 
 
@@ -53,14 +75,20 @@
 
           </div>
           <br>
-          <Upload   ref="upload"
+          <div>
+            <small>发送内容: </small>
+            <a :style="{ display:'inline-block'}"  @click="downloadFile">{{contentPath}}</a>
+            <br>
+            <Upload   :style="{ display:'inline-block'}" ref="upload"
                       :action="fileUploadUrl"
                       :data="postData"
                       :on-success="uploadSuccess">
-            <Button icon="ios-cloud-upload-outline">Upload files</Button>
-          </Upload>
-          <Button type="primary"  @click="downloadFile">查看上传文件</Button>
-          <Button :style="{ float:'right'}" type="primary" @click="addCustomer">添加客户</Button>
+              <Button :style="{ display:'inline-block'}" icon="ios-cloud-upload-outline">Upload files</Button>
+           </Upload>
+
+
+            <Button :style="{ float:'right'}" type="primary" >添加客户</Button>
+          </div>
         </div>
         <br>
         <br>
@@ -122,6 +150,28 @@ import Cookies from 'js-cookie'
 export default {
   data () {
     return {
+      formUser: {
+        user: '',
+        password: '',
+        email: '',
+        mailPsw:''
+
+      },
+      ruleCustom: {
+        user: [
+          {required: true, message: '账号名不能为空', trigger: 'blur'}
+        ],
+
+        email: [
+          { required: true, message: 'Mailbox cannot be empty', trigger: 'blur' },
+          { type: 'email', message: 'Incorrect email format', trigger: 'blur' }
+        ],
+        mailPsw: [
+          {required: true, message: '标示不能为空', trigger: 'blur'},
+          {message: '标示只支持字母', trigger: 'blur'}
+        ]
+      },
+      modal7:false,
       //fileUploadUrl:"http://localhost:8082/email/uploadFile",
       fileUploadUrl:api.baseURL + '/user/uploadFile',
       mailSubject:'',
@@ -131,7 +181,7 @@ export default {
       timePoint: '',
       currentPage: 1,
       totalPage: 10,
-
+      contentPath:Cookies.get('contentPath'),
       pageSize: 10,
       totalNum: 10,
       customers:[],
@@ -198,10 +248,10 @@ export default {
       ],
       data1: [
         {
-          name: 'Jim Green',
-          email: 'junjie316go@gmail.com',
-          address: 'London No. 1 Lake Park',
-          date: '2016-10-01'
+          name: ' ',
+          email: ' ',
+          address: ' ',
+          date: ' '
         }
 
       ]
@@ -218,7 +268,7 @@ export default {
       this.$Message.info(res.data);
       if(res.resultCode == 'NO_ERROR'){
         Cookies.set('contentPath', res.data.contentPath)
-
+        this.contentPath =  res.data.contentPath
       }
     }     ,
     selectChange:function(selection){
@@ -301,7 +351,8 @@ export default {
         let link = document.createElement('a')
         link.style.display = 'none'
         link.href = url
-        link.setAttribute('download', Cookies.get('contentPath'))
+        this.contentPath = Cookies.get('contentPath')
+        link.setAttribute('download', this.contentPath)
         document.body.appendChild(link)
         link.click()
       }).catch(error => {
@@ -309,7 +360,43 @@ export default {
       })
 
     },
+    handleDropClick(val ){
+      if (val == '2') {
+        this.$router.push('/')
+      }else if(val=='1') {
+        var jsonData = {
+          user: '' + this.username
+        }
+        api.getUserInfoAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
+          this.formUser.user = res.data.name
+          this.formUser.email = res.data.email
+          this.formUser.mailPsw = res.data.mailPsw
+        }).catch(error => {
+          console.log(error)
+        })
+        this.modal7 = true
+      }
+      console.log(val)
+    },
     addCustomer(){
+    },
+    modifyUserInfo(){
+      api.loginAxios({jsonData:JSON.stringify(userInfo)}).then(res=>{
+        if (res.resultCode == 'NO_ERROR') {
+          Cookies.set('userName',this.formValidate.name)
+          //Cookies.set('token', this.formValidate.password)
+          Cookies.set('email', res.data.email)
+          this.$Message.success(res.resultMsg)
+          this.$router.push('/summary')
+        }else{
+          this.error_text = '修改错误，请稍后重试！'
+          this.$Message.success(res.resultMsg)
+        }
+        this.modal_loading = false
+      }).catch(res=>{
+        this.error_text = '网络错误，请稍后重试！'
+        this.modal_loading = false
+      })
     }
   },
   components: {

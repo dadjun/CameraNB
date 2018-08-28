@@ -106,7 +106,7 @@
             api.registerUserAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
 
               if (res.resultCode == 'NO_ERROR') {
-                this.$router.push('/summary')
+                this.$router.push('/')
                 this.$Message.success(res.resultMsg)
               } else {
                 this.$Message.success(res.resultMsg)

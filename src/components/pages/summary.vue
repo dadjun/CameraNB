@@ -59,9 +59,8 @@
           <h1 :style="{ textAlign:'center',fontSize:'20px'}"  ></h1>
         </Row>
 
-        <div>
-
-          <div>
+        <div :style="{ display:'inline-block'}">
+          <div >
             <small>发送邮箱:</small>
             <Input v-model="mailSender" placeholder="Enter something..." style="width: 300px" />
 
@@ -72,12 +71,12 @@
             <small>发送主题:</small>
             <Input v-model="mailSubject" placeholder="Enter something..." style="width: 300px" />
             <Button @click="clearUploadedFiles">重新上传</Button>
-
           </div>
-          <br>
-          <div>
+        </div>
+
+        <div :style="{ display:'inline-block'}" >
             <small>发送内容: </small>
-            <a :style="{ display:'inline-block'}"  @click="downloadFile">{{contentPath}}</a>
+            <a  @click="downloadFile">{{contentPath}}</a>
             <br>
             <Upload   :style="{ display:'inline-block'}" ref="upload"
                       :action="fileUploadUrl"
@@ -85,11 +84,17 @@
                       :on-success="uploadSuccess">
               <Button :style="{ display:'inline-block'}" icon="ios-cloud-upload-outline">Upload files</Button>
            </Upload>
-
-
-            <Button :style="{ float:'right'}" type="primary" >添加客户</Button>
-          </div>
         </div>
+        <br>
+          <AutoComplete
+            v-model="value3"
+            :data="data3"
+            :filter-method="filterMethod"
+            placeholder="input here"
+            style="width:200px; ">
+          </AutoComplete>
+          <Button :style="{ float:'right'}" type="primary" >添加客户</Button>
+
         <br>
         <br>
       <Table border :columns="columns1" :data="data1" @on-selection-change="selectChange"></Table>
@@ -220,28 +225,60 @@ export default {
         },
 
         {
-          title: 'Status',
-          key: 'status',
+          title: 'Operation',
+          key: 'operation',
           width: 150,
           align: 'center',
           render: (h, params) => {
              console.log(params)
             return h('div', [
               h('Button', {
-                props: {
+               props: {
                   type: 'primary',
                   size: 'small'
                 },
                 style: {
-                  marginRight: '5px',
-                  display:(params.row.status=='true')?"inline-block":"none"
+                  marginRight: '5px'
+                  //display:(params.row.status=='true')?"inline-block":"none"
                 },
                 on: {
                   click: () => {
                     this.show(params.index)
                   }
                 }
-              }, 'success')
+              }, 'view') ,
+              h('Button', {
+                props: {
+                  type: 'error',
+                  size: 'small'
+                },
+                on: {
+                  click: () => {
+                    this.remove(params.index)
+                  }
+                }
+              }, 'Delete')
+            ]);
+          }
+        },
+        {
+          title: 'Success',
+          key: 'success',
+          width: 150,
+          align: 'center',
+          render: (h, params) => {
+            console.log(params)
+            return h('div', [
+              h('Icon', {
+                props: {
+                  type: 'md-checkmark',
+                  size:28
+                },
+                style: {
+                  marginRight: '5px',
+                   display:(params.row.status=='true')?"inline-block":"none"
+                }
+              })
             ]);
           }
         }

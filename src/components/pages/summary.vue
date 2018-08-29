@@ -59,7 +59,7 @@
           <h1 :style="{ textAlign:'center',fontSize:'20px'}"  ></h1>
         </Row>
 
-        <div :style="{ display:'inline-block'}">
+        <div >
           <div >
             <small>发送邮箱:</small>
             <Input v-model="mailSender" placeholder="Enter something..." style="width: 300px" />
@@ -70,30 +70,46 @@
           <div>
             <small>发送主题:</small>
             <Input v-model="mailSubject" placeholder="Enter something..." style="width: 300px" />
-            <Button @click="clearUploadedFiles">重新上传</Button>
+            <Button @click="clearUploadedFiles">清除上传</Button>
           </div>
+          <br>
+
         </div>
 
-        <div :style="{ display:'inline-block'}" >
-            <small>发送内容: </small>
-            <a  @click="downloadFile">{{contentPath}}</a>
-            <br>
-            <Upload   :style="{ display:'inline-block'}" ref="upload"
+        <div  :style="{ display:'inline-block'}"   >
+          <small>发送内容: </small>
+          <a  @click="downloadFile">{{contentPath}}</a>
+          <br/>
+            <Upload   ref="upload"
                       :action="fileUploadUrl"
                       :data="postData"
                       :on-success="uploadSuccess">
-              <Button :style="{ display:'inline-block'}" icon="ios-cloud-upload-outline">Upload files</Button>
+              <Button   icon="ios-cloud-upload-outline">Upload files</Button>
            </Upload>
         </div>
         <br>
+        <div :style="{ float:'right'}" >
+        <!--  <small>选择邮箱:</small>
           <AutoComplete
-            v-model="value3"
-            :data="data3"
-            :filter-method="filterMethod"
+            v-model="valueCountry"
+            :data="dataCountry"
+
+            @on-search="handleSearchCountry"
             placeholder="input here"
-            style="width:200px; ">
+            style="width:300px; ">
+          </AutoComplete>-->
+
+        <small>选择国家:</small>
+          <AutoComplete
+            v-model="valueCountry"
+            :data="dataCountry"
+            :filter-method="filterMethod"
+            @on-search="handleSearchCountry"
+            placeholder="input here"
+            style="width:300px; ">
           </AutoComplete>
-          <Button :style="{ float:'right'}" type="primary" >添加客户</Button>
+          <Button type="primary" >添加客户</Button>
+        </div>
 
         <br>
         <br>
@@ -230,7 +246,6 @@ export default {
           width: 150,
           align: 'center',
           render: (h, params) => {
-             console.log(params)
             return h('div', [
               h('Button', {
                props: {
@@ -267,7 +282,6 @@ export default {
           width: 150,
           align: 'center',
           render: (h, params) => {
-            console.log(params)
             return h('div', [
               h('Icon', {
                 props: {
@@ -291,13 +305,23 @@ export default {
           date: ' '
         }
 
-      ]
+      ],
+      dataCountry: ['Steve Jobs', 'Stephen Gary Wozniak', 'Jonathan Paul Ive'],
+      valueCountry:''
     }
   },
   mounted () {
-    this.searchLog()
+    this.searchCustomers()
   },
   methods: {
+    handleSearchCountry (value) {
+      //return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+      console.log(value)
+    },
+    //
+    filterMethod (value,option) {
+       return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+    },
     clearUploadedFiles () {
       this.$refs.upload.clearFiles();
     },
@@ -325,13 +349,12 @@ export default {
           list: dat
         };
 
-        api.sendCustomersEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
+        api.sendEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
           this.data1.forEach(function (v, k, theArray) {
             if (v.id == res.data.id && res.data.status == true) {
               theArray[k].status = 'true'
             }
           })
-
           if (res.resultCode == 'NO_ERROR') {
             this.$Message.info("发送成功")
           } else {
@@ -348,9 +371,7 @@ export default {
       this.getCustomers()
     },
     pageSizeChange:function(value){
-
       this.pageSize = value
-
       console.log(this.pageSize)
       this.getCustomers()
       this.$Message.error(this.pageSize.toString())
@@ -358,17 +379,32 @@ export default {
     show: function () {
       this.visible = true;
     },
-    searchLog(){
+    searchCustomers(){
+
       this.currentPage = 1
       this.getCustomers()
+      this.getCustomerCountry()
+    },
+    getCustomerCountry () {
+      var jsonData = {
+      }
+
+      api.selectCustomerCountry({jsonData: JSON.stringify(jsonData)}).then(res => {
+        this.dataCountry = res
+
+      }).catch(error => {
+        console.log(error)
+      })
     },
     getCustomers () {
       var jsonData = {
         pageNum: '' + this.currentPage,
+        //country: '' + 'AFGHANISTAN              |阿富汗',
+        //email:'' + 'agents.lv@inbox.lv',
         pageSize: '' + this.pageSize
       }
 
-      api.selectCustomersAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
+      api.selectCustomers({jsonData: JSON.stringify(jsonData)}).then(res => {
         this.data1 = res.list
         this.totalNum = res.total
         this.totalPage = res.pages

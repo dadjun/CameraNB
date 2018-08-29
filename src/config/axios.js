@@ -90,11 +90,14 @@ export default {
   /**
    * 用户登录日志
    */
-  selectCustomersAxios(params) {
+  selectCustomers(params) {
     return fetch('/customer/selectCustomers', params)
   },
+  selectCustomerCountry(params) {
+    return fetch('/customer/selectCountryList', params)
+  },
 
-  sendCustomersEmailAxios(params) {
+  sendEmailAxios(params) {
     return fetch('/email/batchSend', params)
   },
 

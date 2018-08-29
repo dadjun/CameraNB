@@ -115,7 +115,7 @@
         <br>
       <Table border :columns="columns1" :data="data1" @on-selection-change="selectChange"></Table>
 
-        <Page :total="totalNum" :current="currentPage"  :page-size="pageSize"  @on-change="pageChange" @on-page-size-change="pageSizeChange" show-sizer />
+        <Page :total="totalNum" :current="currentPage"  :page-size-opts="pageSizeOpts" :page-size="pageSize"  @on-change="pageChange" @on-page-size-change="pageSizeChange" show-sizer />
 
 
       </Content>
@@ -203,7 +203,8 @@ export default {
       currentPage: 1,
       totalPage: 10,
       contentPath:Cookies.get('contentPath'),
-      pageSize: 10,
+      pageSize: 20,
+      pageSizeOpts:[10,20,50,100],
       totalNum: 10,
       customers:[],
       visible:false,
@@ -304,7 +305,6 @@ export default {
           address: ' ',
           date: ' '
         }
-
       ],
       dataCountry: ['Steve Jobs', 'Stephen Gary Wozniak', 'Jonathan Paul Ive'],
       valueCountry:''
@@ -380,7 +380,6 @@ export default {
       this.visible = true;
     },
     searchCustomers(){
-
       this.currentPage = 1
       this.getCustomers()
       this.getCustomerCountry()
@@ -388,10 +387,8 @@ export default {
     getCustomerCountry () {
       var jsonData = {
       }
-
       api.selectCustomerCountry({jsonData: JSON.stringify(jsonData)}).then(res => {
         this.dataCountry = res
-
       }).catch(error => {
         console.log(error)
       })
@@ -431,7 +428,6 @@ export default {
       }).catch(error => {
         console.log(error)
       })
-
     },
     handleDropClick(val ){
       if (val == '2') {
@@ -470,6 +466,9 @@ export default {
         this.error_text = '网络错误，请稍后重试！'
         this.modal_loading = false
       })
+    },
+    remove(index){
+      this.data1.splice(index, 1);
     }
   },
   components: {

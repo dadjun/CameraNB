@@ -9,8 +9,8 @@ axios.defaults.timeout = 15000
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded;charset=UTF-8'
 
 //axios.defaults.baseURL ='http://localhost:8080'
-// axios.defaults.baseURL ='http://localhost:8082'
-axios.defaults.baseURL = 'http://hylink.imwork.net:8234/customer'
+ axios.defaults.baseURL ='http://localhost:8082'
+//axios.defaults.baseURL = 'http://hylink.imwork.net:8234/customer'
 // axios.defaults.baseURL = 'http://192.168.0.40:8080/fireMgmt'
 
 // POST传参序列化(添加请求拦截器)

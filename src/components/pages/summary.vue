@@ -305,8 +305,8 @@ export default {
         {
           name: ' ',
           email: ' ',
-          address: ' ',
-          date: ' '
+          country: ' ',
+          lastSendDate: ' '
         }
       ],
       dataCountry: ['Steve Jobs', 'Stephen Gary Wozniak', 'Jonathan Paul Ive'],
@@ -369,6 +369,7 @@ export default {
           this.data1.forEach(function (v, k, theArray) {
             if (v.id === res.data.id && res.data.status === true) {
               theArray[k].status = 'true';
+              theArray[k].lastSendDate = res.data.lastSendDate;
             }
           });
           if (res.resultCode === 'NO_ERROR') {

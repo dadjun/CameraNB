@@ -25,34 +25,31 @@
               <DropdownMenu slot="list">
                 <DropdownItem name="1" >编辑信息</DropdownItem>
                 <DropdownItem name="2" >退出</DropdownItem>
-                <DropdownItem name="3" >毛毛鱼</DropdownItem>
+                <!--<DropdownItem name="3" >毛毛鱼</DropdownItem>-->
               </DropdownMenu>
             </Dropdown>
         </div>
 
         <Modal
           title="修改用户信息"
-          v-model="modal7"
+          v-model="modalUserInfo"
           @on-ok="modifyUserInfo"
           :styles="{top: '20px'}">
           <div>
           <Form ref="formCustom" :model="formUser" :rules="ruleCustom" :label-width="110">
-
             <!--<Form-item label="密码" prop="password" >
               <Input type="password" v-model="formUser.password" placeholder="请输入"></Input>
             </Form-item>-->
             <FormItem label="E-mail" prop="email">
-              <Input v-model="formUser.email" placeholder="请输入"></Input>
+              <Input v-model="formUser.email" placeholder="请输入"/>
             </FormItem>
             <Form-item label="E-mail password"  prop="password">
-              <Input  type="password" v-model="formUser.mailPsw" placeholder="请输入邮箱密码"></Input>
+              <Input  type="password" v-model="formUser.mailPsw" placeholder="请输入邮箱密码"/>
             </Form-item>
           </Form>
           </div>
         </Modal>
-
       </Header>
-
 
       <Content :style="{margin: '5px 2px 0', background: '#fff', minHeight: '50px'}">
         <Row>
@@ -73,7 +70,6 @@
             <Button @click="clearUploadedFiles">清除上传</Button>
           </div>
           <br>
-
         </div>
 
         <div  :style="{ display:'inline-block'}"   >
@@ -89,37 +85,40 @@
         </div>
         <br>
         <div :style="{ float:'right'}" >
-        <!--  <small>选择邮箱:</small>
+         <small>选择邮箱:</small>
           <AutoComplete
-            v-model="valueCountry"
-            :data="dataCountry"
-
-            @on-search="handleSearchCountry"
+            v-model="valueEmail"
+            :data="arrayEmail"
+            @on-search="handleSearchEmail"
             placeholder="input here"
             style="width:300px; ">
-          </AutoComplete>-->
+          </AutoComplete>
 
         <small>选择国家:</small>
           <AutoComplete
             v-model="valueCountry"
             :data="dataCountry"
             :filter-method="filterMethod"
-            @on-search="handleSearchCountry"
+            @on-select="handleSearchCountry"
             placeholder="input here"
             style="width:300px; ">
           </AutoComplete>
           <Button type="primary" >添加客户</Button>
         </div>
-
         <br>
         <br>
       <Table border :columns="columns1" :data="data1" @on-selection-change="selectChange"></Table>
 
         <Page :total="totalNum" :current="currentPage"  :page-size-opts="pageSizeOpts" :page-size="pageSize"  @on-change="pageChange" @on-page-size-change="pageSizeChange" show-sizer />
-
-
       </Content>
       <Footer class="layout-footer-center">2018-2020 &copy; Melinda</Footer>
+      <Modal
+        v-model="modalDel"
+        title="删除提示"
+        @on-ok="deleteOk"  >
+        <p>确认是否删除该项</p>
+      </Modal>
+
     </Layout>
   </div>
 </template>
@@ -159,13 +158,11 @@
   padding: 0 10px;
 }
 </style>
-
 <script>
 
 import api from '../../config/axios.js'
 import util from '../../common/utils/index.js'
 import pagination from '@/components/plugins/pagination'
-//import autoUserInput from '@/components/tokens/autoUserInput'
 import { fetchDownloadFile } from  '../../config/axios.js'
 import Cookies from 'js-cookie'
 export default {
@@ -192,7 +189,8 @@ export default {
           {message: '标示只支持字母', trigger: 'blur'}
         ]
       },
-      modal7:false,
+      modalUserInfo:false,
+      modalDel:false,
       //fileUploadUrl:"http://localhost:8082/email/uploadFile",
       fileUploadUrl:api.baseURL + '/user/uploadFile',
       mailSubject:'',
@@ -216,9 +214,10 @@ export default {
           width: 60,
           align: 'center'
         },
-        {
+       {
           title: 'Id',
-          key: 'id'
+         width: 100,
+          key:  'id'
         },
         {
           title: 'Name',
@@ -226,19 +225,23 @@ export default {
         },
         {
           title: 'Email',
-          key: 'email'
+          key: 'email',
+          width: 350
         },
         {
           title: 'Country',
-          key: 'country'
+          key: 'country',
+          width: 350
         },
         {
           title:'CustomerType',
-          key:'customerType'
+          key:'customerType',
+          width: 200
         },
         {
           title: 'lastSendDate',
-          key: 'lastSendDate'
+          key: 'lastSendDate',
+          width: 200
         },
 
         {
@@ -291,7 +294,7 @@ export default {
                 },
                 style: {
                   marginRight: '5px',
-                   display:(params.row.status=='true')?"inline-block":"none"
+                   display:(params.row.status==='true')?"inline-block":"none"
                 }
               })
             ]);
@@ -307,28 +310,43 @@ export default {
         }
       ],
       dataCountry: ['Steve Jobs', 'Stephen Gary Wozniak', 'Jonathan Paul Ive'],
-      valueCountry:''
+      valueCountry:'',
+      valueEmail:'',
+      arrayEmail:[],
+      deleteIdx:-1,
     }
   },
   mounted () {
-    this.searchCustomers()
+    this.getCustomersAndCountry()
   },
   methods: {
+    handleSearchEmail(value) {
+      console.log(value);
+      console.log(this.valueCountry);
+      this.searchCustomers(this.valueCountry,this.valueEmail);
+    },
     handleSearchCountry (value) {
       //return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
-      console.log(value)
+      if (value !== "") {
+        console.log(value);
+        console.log(this.valueEmail);
+        this.searchCustomers(value,this.valueEmail)
+      }
     },
-    //
     filterMethod (value,option) {
-       return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+      if(value !== null && value !== "") {
+          return option.toUpperCase().indexOf(value.toUpperCase()) !== -1;
+      }else{
+        return false;
+      }
     },
     clearUploadedFiles () {
       this.$refs.upload.clearFiles();
     },
     uploadSuccess (res, file) { //上传成功
       this.$Message.info(res.data);
-      if(res.resultCode == 'NO_ERROR'){
-        Cookies.set('contentPath', res.data.contentPath)
+      if(res.resultCode === 'NO_ERROR'){
+        Cookies.set('contentPath', res.data.contentPath);
         this.contentPath =  res.data.contentPath
       }
     }     ,
@@ -337,74 +355,75 @@ export default {
       //console.log(this.customers)
     },
     sendEmail:function( ) {
-
       this.data1.forEach(function (v, k, theArray) {
-          theArray[k].status = 'false'
+          theArray[k].status = 'false';
       })
 
       for( let dat of this.customers) {
-        var jsonData = {
+        let jsonData = {
           sender: this.username,
           subject: this.mailSubject,
           list: dat
-        };
-
-        api.sendEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
+         };
+         api.sendEmailAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
           this.data1.forEach(function (v, k, theArray) {
-            if (v.id == res.data.id && res.data.status == true) {
-              theArray[k].status = 'true'
+            if (v.id === res.data.id && res.data.status === true) {
+              theArray[k].status = 'true';
             }
-          })
-          if (res.resultCode == 'NO_ERROR') {
-            this.$Message.info("发送成功")
+          });
+          if (res.resultCode === 'NO_ERROR') {
+            this.$Message.info("发送成功");
           } else {
-            this.$Message.error("发送成功")
+            this.$Message.error("发送成功");
           }
-
         }).catch(error => {
           console.log(error)
         })
       }
     },
     pageChange:function(value) {
-      this.currentPage = value
-      this.getCustomers()
+      this.currentPage = value;
+      this.searchCustomers(this.valueCountry,this.valueEmail);
     },
     pageSizeChange:function(value){
-      this.pageSize = value
-      console.log(this.pageSize)
-      this.getCustomers()
-      this.$Message.error(this.pageSize.toString())
+      this.pageSize = value;
+      console.log(this.pageSize);
+      this.searchCustomers(this.valueCountry,this.valueEmail);
+     // this.$Message.error(this.pageSize.toString())
     },
     show: function () {
       this.visible = true;
     },
-    searchCustomers(){
-      this.currentPage = 1
-      this.getCustomers()
-      this.getCustomerCountry()
+    getCustomersAndCountry(){
+      this.currentPage = 1;
+      this.searchCustomers("","");
+      this.getCustomerCountry();
     },
     getCustomerCountry () {
-      var jsonData = {
-      }
+      let jsonData = {
+      };
       api.selectCustomerCountry({jsonData: JSON.stringify(jsonData)}).then(res => {
-        this.dataCountry = res
+        this.dataCountry = res;
       }).catch(error => {
-        console.log(error)
+        console.log(error);
       })
     },
-    getCustomers () {
-      var jsonData = {
+    searchCustomers (country,email) {
+      let jsonData = {
         pageNum: '' + this.currentPage,
-        //country: '' + 'AFGHANISTAN              |阿富汗',
-        //email:'' + 'agents.lv@inbox.lv',
         pageSize: '' + this.pageSize
+      };
+      if(country !== "") {
+        jsonData.country=country;
+      }
+      if(email !== ""){
+        jsonData.email=email;
       }
 
       api.selectCustomers({jsonData: JSON.stringify(jsonData)}).then(res => {
-        this.data1 = res.list
-        this.totalNum = res.total
-        this.totalPage = res.pages
+        this.data1 = res.list;
+        this.totalNum = res.total;
+        this.totalPage = res.pages;
         console.log(this.totalPage)
         //this.currentPage = res.pageNum
       }).catch(error => {
@@ -416,34 +435,33 @@ export default {
         userName: '' + this.username
       }
       api.downloadUserFile({jsonData: JSON.stringify(jsonData)}).then(res => {
-
-        let url = window.URL.createObjectURL(new Blob([res]))
-        let link = document.createElement('a')
-        link.style.display = 'none'
-        link.href = url
-        this.contentPath = Cookies.get('contentPath')
-        link.setAttribute('download', this.contentPath)
-        document.body.appendChild(link)
+        let url = window.URL.createObjectURL(new Blob([res]));
+        let link = document.createElement('a');
+        link.style.display = 'none';
+        link.href = url;
+        this.contentPath = Cookies.get('contentPath');
+        link.setAttribute('download', this.contentPath);
+        document.body.appendChild(link);
         link.click()
       }).catch(error => {
         console.log(error)
       })
     },
     handleDropClick(val ){
-      if (val == '2') {
+      if (val === '2') {
         this.$router.push('/')
-      }else if(val=='1') {
+      }else if(val=== '1') {
         var jsonData = {
           user: '' + this.username
-        }
+        };
         api.getUserInfoAxios({jsonData: JSON.stringify(jsonData)}).then(res => {
-          this.formUser.user = res.data.name
-          this.formUser.email = res.data.email
+          this.formUser.user = res.data.name;
+          this.formUser.email = res.data.email;
           this.formUser.mailPsw = res.data.mailPsw
         }).catch(error => {
           console.log(error)
-        })
-        this.modal7 = true
+        });
+        this.modalUserInfo = true
       }
       console.log(val)
     },
@@ -451,24 +469,41 @@ export default {
     },
     modifyUserInfo(){
       api.loginAxios({jsonData:JSON.stringify(userInfo)}).then(res=>{
-        if (res.resultCode == 'NO_ERROR') {
-          Cookies.set('userName',this.formValidate.name)
-          //Cookies.set('token', this.formValidate.password)
-          Cookies.set('email', res.data.email)
+        if (res.resultCode === 'NO_ERROR') {
+          Cookies.set('userName',this.formValidate.name);
+          Cookies.set('email', res.data.email);
           this.$Message.success(res.resultMsg)
           this.$router.push('/summary')
         }else{
-          this.error_text = '修改错误，请稍后重试！'
+          this.error_text = '修改错误，请稍后重试！';
           this.$Message.success(res.resultMsg)
         }
         this.modal_loading = false
       }).catch(res=>{
-        this.error_text = '网络错误，请稍后重试！'
+        this.error_text = '网络错误，请稍后重试！';
         this.modal_loading = false
       })
     },
     remove(index){
-      this.data1.splice(index, 1);
+
+      this.deleteIdx = index;
+      this.modalDel = true
+    },
+    deleteOk() {
+      if(this.deleteIdx != -1) {
+        let jsonData = this.data1[this.deleteIdx];
+        this.data1.splice(this.deleteIdx, 1);
+        api.deleteCustomer({jsonData: JSON.stringify(jsonData)}).then(res => {
+          if (res.resultCode === 'NO_ERROR') {
+            this.$Message.success("删除成功")
+          }else{
+            this.$Message.success("删除失败")
+          }
+        }).catch(error => {
+          console.log(error)
+        })
+        this.deleteIdx = -1;
+      }
     }
   },
   components: {
